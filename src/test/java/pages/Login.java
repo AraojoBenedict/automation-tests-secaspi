@@ -2,46 +2,38 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.edge.EdgeDriver;
 import utils.Config;
 import java.time.Duration;
 
 
 public class Login {
+    private WebDriver driver;
 
-	public static void main(String[] args) {
+    // Locators
+    private By emailField = By.id("email");
+    private By passwordField = By.id("password");
+    private By loginButton = By.className("login-btn");
+    private By logoutButton = By.xpath("//button[text()='Log Out']");
 
-		// D ko alam ginagawa neto nalimutan ko na pero parang ini-initialize nya yung
-		// web driver from maven type shi
-		WebDriver driver = new EdgeDriver();
+    // Constructor
+    public Login(WebDriver driver) {
+        this.driver = driver;
+    }
 
-		// Open Secaspi
-		driver.get("https://www.secaspi.org/");
-		driver.manage().window().maximize();
+    // Login with custom credentials
+    public void login(String email, String password) {
+        driver.findElement(emailField).sendKeys(email);
+        driver.findElement(passwordField).sendKeys(password);
+        driver.findElement(loginButton).click();
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+    }
 
-		// navigation to the sign up page
-		driver.findElement(By.xpath("//html/body/header/nav/ul/li[6]/a")).click();
+    // Login with default credentials from Config
+    public void loginWithDefaultUser() {
+        login(Config.get("EMAIL"), Config.get("PASSWORD"));
+    }
 
-		// Input email field
-		driver.findElement(By.id("email")).sendKeys(Config.get("EMAIL"));
-
-		// Input password field
-		driver.findElement(By.id("password")).sendKeys(Config.get("PASSWORD"));
-
-		// Clicking login
-		driver.findElement(By.className("login-btn")).click();
-		
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-		// Get text of the button using concise XPath
-		String actualText = driver.findElement(By.xpath("//button[text()='Log Out']")).getText();
-
-		// Check text manually (no TestNG/JUnit)
-		if (actualText.equals("Log Out")) {
-		    System.out.println("✅ Text matches! Found: " + actualText);
-		} else {
-		    System.out.println("❌ Text does not match! Found: " + actualText);
-		}
-
-	}
-
+    public String getLogoutText() {
+        return driver.findElement(logoutButton).getText();
+    }
 }
